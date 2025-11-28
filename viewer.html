@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <title>Miniverse Magazine - Issue 001 Viewer</title>
+  <title>Miniverse Magazine - Online Viewer</title>
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <style>
     * {
@@ -122,7 +122,7 @@
   <header>
     <div class="brand">
       <div class="brand-title">Miniverse Magazine</div>
-      <div class="brand-sub">Issue 001 · Online Reader</div>
+      <div class="brand-sub">Online Reader</div>
     </div>
     <div class="controls">
       <div>
@@ -131,9 +131,6 @@
           <option value="en">English (EN)</option>
           <option value="tr">Türkçe (TR)</option>
         </select>
-      </div>
-      <div class="info-pill">
-        Tip: Use full screen for best reading experience
       </div>
     </div>
   </header>
@@ -145,7 +142,9 @@
   <script>
     (function () {
       // PDF.js viewer base (Mozilla hosted)
-      const PDFJS_VIEWER_BASE = "https://mozilla.github.io/pdf.js/web/viewer.html?file=";
+      const PDFJS_VIEWER_BASE =
+  "https://mozilla.github.io/pdf.js/web/viewer.html?file={FILE}&download=false&print=false&openfile=false";
+
 
       // Your PDFs on this domain
       const PDFS = {
@@ -174,7 +173,10 @@
 
       function updateViewer(lang) {
         const pdfUrl = PDFS[lang] || PDFS.en;
-        const viewerUrl = PDFJS_VIEWER_BASE + encodeURIComponent(pdfUrl);
+        const viewerUrl = PDFJS_VIEWER_BASE.replace(
+            "{FILE}",
+            encodeURIComponent(pdfUrl)
+        );
         pdfFrame.src = viewerUrl;
       }
 
