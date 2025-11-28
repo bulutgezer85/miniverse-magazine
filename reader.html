@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Miniverse Magazine - Issue 001 Viewer</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+
+    html, body {
+      margin: 0;
+      padding: 0;
+      height: 100%;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI",
+        Roboto, sans-serif;
+      background: #0f172a;
+      color: #e5e7eb;
+    }
+
+    body {
+      display: flex;
+      flex-direction: column;
+    }
+
+    header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0.6rem 1rem;
+      background: rgba(15, 23, 42, 0.95);
+      border-bottom: 1px solid rgba(148, 163, 184, 0.25);
+      backdrop-filter: blur(10px);
+      z-index: 10;
+    }
+
+    .brand {
+      display: flex;
+      flex-direction: column;
+      gap: 0.15rem;
+    }
+
+    .brand-title {
+      font-size: 0.95rem;
+      font-weight: 600;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      color: #f9fafb;
+    }
+
+    .brand-sub {
+      font-size: 0.75rem;
+      color: #9ca3af;
+    }
+
+    .controls {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      font-size: 0.85rem;
+    }
+
+    .controls label {
+      color: #cbd5f5;
+      font-weight: 500;
+    }
+
+    select {
+      padding: 0.25rem 0.6rem;
+      border-radius: 999px;
+      border: 1px solid rgba(148, 163, 184, 0.5);
+      background: #020617;
+      color: #e5e7eb;
+      font-size: 0.85rem;
+      outline: none;
+      cursor: pointer;
+    }
+
+    select:focus {
+      border-color: #38bdf8;
+      box-shadow: 0 0 0 1px #38bdf8;
+    }
+
+    .info-pill {
+      padding: 0.2rem 0.6rem;
+      border-radius: 999px;
+      border: 1px solid rgba(148, 163, 184, 0.4);
+      font-size: 0.75rem;
+      color: #9ca3af;
+      white-space: nowrap;
+    }
+
+    main {
+      flex: 1;
+      min-height: 0;
+    }
+
+    iframe {
+      width: 100%;
+      height: 100%;
+      border: none;
+      display: block;
+      background: #020617;
+    }
+
+    @media (max-width: 640px) {
+      header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 0.5rem;
+      }
+
+      .controls {
+        width: 100%;
+        justify-content: space-between;
+      }
+
+      .info-pill {
+        display: none; /* mobile’da çok sıkıştırmasın */
+      }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="brand">
+      <div class="brand-title">Miniverse Magazine</div>
+      <div class="brand-sub">Issue 001 · Online Reader</div>
+    </div>
+    <div class="controls">
+      <div>
+        <label for="languageSelect">Language / Dil:</label>
+        <select id="languageSelect">
+          <option value="en">English (EN)</option>
+          <option value="tr">Türkçe (TR)</option>
+        </select>
+      </div>
+      <div class="info-pill">
+        Tip: Best experience in full screen
+      </div>
+    </div>
+  </header>
+
+  <main>
+    <iframe id="pdfFrame" title="Miniverse Magazine PDF"></iframe>
+  </main>
+
+  <script>
+    (function () {
+      // Aynı klasörde duran PDF’ler
+      // Not: #toolbar=0... parametreleri bazı tarayıcılarda native toolbar’ı azaltıyor
+      const PDFS = {
+        en: "issue001-en.pdf#toolbar=0&navpanes=0&scrollbar=0",
+        tr: "issue001-tr.pdf#toolbar=0&navpanes=0&scrollbar=0",
+      };
+
+      const languageSelect = document.getElementById("languageSelect");
+      const pdfFrame = document.getElementById("pdfFrame");
+
+      function getQueryParam(name) {
+        const params = new URLSearchParams(window.location.search);
+        return params.get(name);
+      }
+
+      function setQueryParam(name, value) {
+        const url = new URL(window.location.href);
+        if (value) {
+          url.searchParams.set(name, value);
+        } else {
+          url.searchParams.delete(name);
+        }
+        window.history.replaceState({}, "", url.toString());
+      }
+
+      function updateViewer(lang) {
+        const pdfUrl = PDFS[lang] || PDFS.en;
+        pdfFrame.src = pdfUrl;
+      }
+
+      // URL’de ?lang=en / ?lang=tr varsa onu kullan
+      const initialLang = (getQueryParam("lang") || "en").toLowerCase();
+      if (initialLang === "tr" || initialLang === "en") {
+        languageSelect.value = initialLang;
+      } else {
+        languageSelect.value = "en";
+      }
+      updateViewer(languageSelect.value);
+
+      // Dropdown değişince hem iframe’i hem URL paramını güncelle
+      languageSelect.addEventListener("change", () => {
+        const lang = languageSelect.value;
+        setQueryParam("lang", lang);
+        updateViewer(lang);
+      });
+    })();
+  </script>
+</body>
+</html>
+
