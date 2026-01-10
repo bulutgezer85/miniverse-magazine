@@ -126,9 +126,16 @@
   <header>
     <div class="brand">
       <div class="brand-title">Miniverse Magazine</div>
-      <div class="brand-sub">Issue 001 · Online Reader</div>
+      <div class="brand-sub" id="brandSub">Online Reader</div>
     </div>
     <div class="controls">
+      <div>
+        <label for="issueSelect">Issue:</label>
+        <select id="issueSelect">
+          <option value="002">Issue 002 (Latest)</option>
+          <option value="001">Issue 001</option>
+        </select>
+      </div>
       <div>
         <label for="languageSelect">Language / Dil:</label>
         <select id="languageSelect">
@@ -148,15 +155,23 @@
 
   <script>
     (function () {
-      // Aynı klasörde duran PDF’ler
-      // Not: #toolbar=0... parametreleri bazı tarayıcılarda native toolbar’ı azaltıyor
+      // PDF'ler issue ve dil bazında
+      // Not: #toolbar=0... parametreleri bazı tarayıcılarda native toolbar'ı azaltıyor
       const PDFS = {
-        en: "issue001-en.pdf#toolbar=0&navpanes=0&scrollbar=0",
-        tr: "issue001-tr.pdf#toolbar=0&navpanes=0&scrollbar=0",
+        "001": {
+          en: "issue001-en.pdf#toolbar=0&navpanes=0&scrollbar=0",
+          tr: "issue001-tr.pdf#toolbar=0&navpanes=0&scrollbar=0",
+        },
+        "002": {
+          en: "issue002-en.pdf#toolbar=0&navpanes=0&scrollbar=0",
+          tr: "issue002-tr.pdf#toolbar=0&navpanes=0&scrollbar=0",
+        },
       };
 
+      const issueSelect = document.getElementById("issueSelect");
       const languageSelect = document.getElementById("languageSelect");
       const pdfFrame = document.getElementById("pdfFrame");
+      const brandSub = document.getElementById("brandSub");
 
       function getQueryParam(name) {
         const params = new URLSearchParams(window.location.search);
@@ -173,25 +188,48 @@
         window.history.replaceState({}, "", url.toString());
       }
 
-      function updateViewer(lang) {
-        const pdfUrl = PDFS[lang] || PDFS.en;
+      function updateViewer(issue, lang) {
+        const issuePdfs = PDFS[issue] || PDFS["002"];
+        const pdfUrl = issuePdfs[lang] || issuePdfs.en;
         pdfFrame.src = pdfUrl;
+        brandSub.textContent = `Issue ${issue} · Online Reader`;
       }
 
-      // URL’de ?lang=en / ?lang=tr varsa onu kullan
+      // URL'den parametreleri al, yoksa default değerleri kullan
+      const initialIssue = getQueryParam("issue") || "002";
       const initialLang = (getQueryParam("lang") || "en").toLowerCase();
+
+      // Issue selector'ı ayarla
+      if (PDFS[initialIssue]) {
+        issueSelect.value = initialIssue;
+      } else {
+        issueSelect.value = "002";
+      }
+
+      // Language selector'ı ayarla
       if (initialLang === "tr" || initialLang === "en") {
         languageSelect.value = initialLang;
       } else {
         languageSelect.value = "en";
       }
-      updateViewer(languageSelect.value);
 
-      // Dropdown değişince hem iframe’i hem URL paramını güncelle
+      // İlk yükleme
+      updateViewer(issueSelect.value, languageSelect.value);
+
+      // Issue değişince hem iframe'i hem URL paramını güncelle
+      issueSelect.addEventListener("change", () => {
+        const issue = issueSelect.value;
+        const lang = languageSelect.value;
+        setQueryParam("issue", issue);
+        updateViewer(issue, lang);
+      });
+
+      // Dil değişince hem iframe'i hem URL paramını güncelle
       languageSelect.addEventListener("change", () => {
+        const issue = issueSelect.value;
         const lang = languageSelect.value;
         setQueryParam("lang", lang);
-        updateViewer(lang);
+        updateViewer(issue, lang);
       });
     })();
   </script>
